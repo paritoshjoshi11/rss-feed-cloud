@@ -6,6 +6,8 @@ import logging
 import time
 from datetime import datetime, timedelta
 import os
+from kafka import KafkaProducer
+from bson import ObjectId
 
 # MongoDB connection details
 uri = os.environ.get('MONGO_URI')
@@ -46,6 +48,7 @@ def process_new_items(entries, seen_items):
 
             # Insert the document into the collection
             collection.insert_one(document)
+            push_kafka(document)
             print("Inserted into MongoDB:", document)
 
             # Save the seen item to MongoDB
@@ -61,6 +64,27 @@ def fetch_rss_data(url):
         return []
 
     return feed.entries
+
+# Custom JSON serializer to handle ObjectId serialization
+def json_serializer(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    raise TypeError(f"Type {type(obj)} not serializable")
+
+def push_kafka(message):
+    folderName = "./kafkaCerts/"
+    topic="rss-feed"
+    producer = KafkaProducer(
+    bootstrap_servers=os.environ.get('KAFKA_SERVER'),
+    security_protocol="SSL",
+    ssl_cafile=folderName+"ca.pem",
+    ssl_certfile=folderName+"service.cert",
+    ssl_keyfile=folderName+"service.key",
+    value_serializer=lambda v: json.dumps(v, default=json_serializer).encode('ascii'),
+    key_serializer=lambda v: json.dumps(v).encode('ascii')
+    )
+    producer.send(topic, value=message)
+    producer.flush()
 
 # Main execution flow
 if __name__ == "__main__":
