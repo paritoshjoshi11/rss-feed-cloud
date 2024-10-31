@@ -35,4 +35,4 @@ jobs:
         MONGO_URI: ${{ secrets.MONGO_URI }}  # MongoDB URI
         KAFKA_SERVER: ${{ secrets.KAFKA_SERVER }}  # Kafka server address
       run: |
-        python path/to/your/producer.py  # Adjust this to the path of your script
+        python producer.py  # Adjust this to the path of your script
