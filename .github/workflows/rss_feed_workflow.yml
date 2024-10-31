@@ -1,31 +1,38 @@
-name: RSS Feed Parser
+name: Run Kafka Producer
 
 on:
-  schedule:
-    # Run every hour
-    - cron: '0 * * * *'
-  workflow_dispatch: # Allow manual trigger
+  push:
+    branches:
+      - main  # Change to your default branch if needed
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
-        python-version: '3.11'  # Specify the version of Python you want
+        python-version: '3.11'  # Specify your Python version
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pymongo feedparser kafka-python # Add any other dependencies here
+        pip install feedparser pymongo kafka-python
 
-    - name: Run RSS Feed Parser
-      env:
-        MONGO_URI: ${{ secrets.MONGO_URI }}  # Set environment variable for MongoDB URI
+    - name: Create Certificate Files
       run: |
-        python producer.py  
+        mkdir -p ./kafkaCerts
+        echo "${{ secrets.KAFKA_CERT_CA_CONTENT }}" | base64 --decode > ./kafkaCerts/ca.pem
+        echo "${{ secrets.KAFKA_CERT_FILE_CONTENT }}" | base64 --decode > ./kafkaCerts/service.cert
+        echo "${{ secrets.KAFKA_CERT_KEY_CONTENT }}" | base64 --decode > ./kafkaCerts/service.key
+
+    - name: Run Kafka Producer
+      env:  # Set environment variables
+        MONGO_URI: ${{ secrets.MONGO_URI }}  # MongoDB URI
+        KAFKA_SERVER: ${{ secrets.KAFKA_SERVER }}  # Kafka server address
+      run: |
+        python path/to/your/producer.py  # Adjust this to the path of your script

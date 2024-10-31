@@ -15,6 +15,7 @@ client = MongoClient(uri)
 db = client['rss_feed']  # Connect to the database
 collection = db['feed_life']  # Connect to the collection for RSS feed entries
 seen_items_collection = db['seen_items']  # Connect to the collection for seen items
+kafka_server=os.environ.get('KAFKA_SERVER')
 
 # Load seen items from MongoDB
 def load_seen_items():
@@ -75,7 +76,7 @@ def push_kafka(message):
     folderName = "./kafkaCerts/"
     topic="rss-feed"
     producer = KafkaProducer(
-    bootstrap_servers=os.environ.get('KAFKA_SERVER'),
+    bootstrap_servers = kafka_server,
     security_protocol="SSL",
     ssl_cafile=folderName+"ca.pem",
     ssl_certfile=folderName+"service.cert",
