@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install feedparser pymongo kafka-python
+        pip install feedparser pymongo kafka-python python-dotenv
 
     # - name: Create Certificate Files
     #   run: |
