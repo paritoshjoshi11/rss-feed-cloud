@@ -1,9 +1,11 @@
 name: Run Kafka Producer
 
 on:
-  push:
-    branches:
-      - main  # Change to your default branch if needed
+  # push:
+  #   branches:
+  #     - main  # Change to your default branch if needed
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour at the start of the hour
 
 jobs:
   build:
