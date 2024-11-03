@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 import os
 from kafka import KafkaProducer
 from bson import ObjectId
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # MongoDB connection details
 uri = os.environ.get('MONGO_URI')
@@ -15,7 +19,7 @@ client = MongoClient(uri)
 db = client['rss_feed']  # Connect to the database
 collection = db['feed_life']  # Connect to the collection for RSS feed entries
 seen_items_collection = db['seen_items']  # Connect to the collection for seen items
-kafka_server=os.environ.get('KAFKA_SERVER')
+
 
 # Load seen items from MongoDB
 def load_seen_items():
@@ -73,14 +77,18 @@ def json_serializer(obj):
     raise TypeError(f"Type {type(obj)} not serializable")
 
 def push_kafka(message):
-    folderName = "./kafkaCerts/"
-    topic="rss-feed"
+    kafka_server = os.environ.get('CLOUD_KAFKA_BOOTSTRAP_SERVERS')
+    api_key = os.environ.get('CLOUD_KAFKA_API_KEY')
+    api_secret = os.environ.get('CLOUD_KAFKA_API_SECRET')
+    topic = 'topic_0' 
+
+    # Initialize the Kafka Producer
     producer = KafkaProducer(
-    bootstrap_servers = kafka_server,
-    security_protocol="SSL",
-    ssl_cafile=folderName+"ca.pem",
-    ssl_certfile=folderName+"service.cert",
-    ssl_keyfile=folderName+"service.key",
+    bootstrap_servers=kafka_server,
+    security_protocol='SASL_SSL',
+    sasl_mechanism='PLAIN',
+    sasl_plain_username=api_key,
+    sasl_plain_password=api_secret,
     value_serializer=lambda v: json.dumps(v, default=json_serializer).encode('ascii'),
     key_serializer=lambda v: json.dumps(v).encode('ascii')
     )
