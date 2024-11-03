@@ -26,16 +26,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install feedparser pymongo kafka-python
 
-    - name: Create Certificate Files
-      run: |
-        mkdir -p ./kafkaCerts
-        echo "${{ secrets.KAFKA_CERT_CA_CONTENT }}" | base64 --decode > ./kafkaCerts/ca.pem
-        echo "${{ secrets.KAFKA_CERT_FILE_CONTENT }}" | base64 --decode > ./kafkaCerts/service.cert
-        echo "${{ secrets.KAFKA_CERT_KEY_CONTENT }}" | base64 --decode > ./kafkaCerts/service.key
+    # - name: Create Certificate Files
+    #   run: |
+    #     mkdir -p ./kafkaCerts
+    #     echo "${{ secrets.KAFKA_CERT_CA_CONTENT }}" | base64 --decode > ./kafkaCerts/ca.pem
+    #     echo "${{ secrets.KAFKA_CERT_FILE_CONTENT }}" | base64 --decode > ./kafkaCerts/service.cert
+    #     echo "${{ secrets.KAFKA_CERT_KEY_CONTENT }}" | base64 --decode > ./kafkaCerts/service.key
 
     - name: Run Kafka Producer
       env:  # Set environment variables
         MONGO_URI: ${{ secrets.MONGO_URI }}  # MongoDB URI
-        KAFKA_SERVER: ${{ secrets.KAFKA_SERVER }}  # Kafka server address
+        CLOUD_KAFKA_BOOTSTRAP_SERVERS: ${{ secrets.CLOUD_KAFKA_BOOTSTRAP_SERVERS }}  # Kafka server address
+        CLOUD_KAFKA_API_KEY: ${{ secrets.CLOUD_KAFKA_API_KEY }}
+        CLOUD_KAFKA_API_SECRET: ${{ secrets.CLOUD_KAFKA_API_SECRET }}
       run: |
         python producer.py  # Adjust this to the path of your script
