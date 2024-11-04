@@ -4,8 +4,8 @@ on:
   # push:
   #   branches:
   #     - main  # Change to your default branch if needed
-  # schedule:
-  #   - cron: '0 * * * *'  # Runs every hour at the start of the hour
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour at the start of the hour
   workflow_dispatch:  # Allows for manual triggering of the workflow
 
 jobs:
