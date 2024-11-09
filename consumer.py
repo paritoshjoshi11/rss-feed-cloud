@@ -3,8 +3,11 @@ from bs4 import BeautifulSoup
 from pyspark.sql.types import StructType, StructField, ArrayType, StringType
 from pyspark.sql.functions import from_json, udf
 import google.generativeai as genai
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
 
-
+kafka_config = os.environ.get('SPARK_KAFKA_CONFIG')
 df = (spark
   .read
   .format("kafka")
@@ -14,7 +17,7 @@ df = (spark
   .option("endingOffsets", "latest")
   .option("kafka.security.protocol","SASL_SSL") \
   .option("kafka.sasl.mechanism", "PLAIN") \
-  .option("kafka.sasl.jaas.config", """kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule required username="TJZX5TLU7WKVH7T2" password="lVvPo03Ubd4LxniHzDPhGYxkty0GpITy5jOmZ2/ebARq7kP+au6XBG5QWhX1RLg9";""") \
+  .option("kafka.sasl.jaas.config", kafka_config) \
   .load()
 )
 schema = StructType([
@@ -34,7 +37,7 @@ json_df = (df
 #display(json_df)
 
 def summarise_desc(description_text):
-    genai.configure(api_key='AIzaSyA_YedBCTKumJym9LJTJb6rYoWwpdamFw0')
+    genai.configure(api_key='')
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(f"Give summary on {description_text} in 100 words")
     return response
