@@ -8,10 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 kafka_config = os.environ.get('SPARK_KAFKA_CONFIG')
+kafka_server = os.environ.get('SPARK_KAFKA_CLUSTER')
 df = (spark
   .read
   .format("kafka")
-  .option("kafka.bootstrap.servers", "pkc-12576z.us-west2.gcp.confluent.cloud:9092")
+  .option("kafka.bootstrap.servers", "kafka_server")
   .option("subscribe", "topic_0")
   .option("startingOffsets", "earliest")
   .option("endingOffsets", "latest")
